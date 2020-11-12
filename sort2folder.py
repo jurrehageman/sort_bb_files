@@ -70,6 +70,7 @@ def read_files(source, destination):
 
 
 def export_to_pdf(jpg_destination, pdf_destination):
+    first_image_obj = None
     jpg_ext = ".jpg .JPG .jpeg .JPEG".split()
     print("Exporting to pdf...")
     all_folders = os.listdir(jpg_destination)
@@ -90,7 +91,8 @@ def export_to_pdf(jpg_destination, pdf_destination):
                     image_obj = Image.open(file_path)
                     image_list.append(image_obj)
                 jpg_counter += 1
-        first_image_obj.save(pdf_filename, "PDF", resolution=100.0, save_all=True, append_images=image_list)
+        if first_image_obj:
+            first_image_obj.save(pdf_filename, "PDF", resolution=100.0, save_all=True, append_images=image_list)
 
 
 def write_log(zip_out_loc, log_destination):
