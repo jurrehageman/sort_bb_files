@@ -3,12 +3,19 @@ import sys
 import shutil
 from zipfile import ZipFile
 from PIL import Image
+import platform
+import warnings
 
+#FILE LOCATIONS
 zip_in_loc = os.path.join(".", "place_zip_here")
 zip_out_loc = os.path.join(".", "unzipped_files")
 file_destination = os.path.join(".", "your_sorted_files")
 pdf_destination = os.path.join(".", "your_pdf_files")
 log_destination = os.path.join(".", "your_log_file")
+
+#PLATFORM
+OS_TYPE = platform.platform()
+MAX_PATH = 260
 
 def make_folders(folders):
     for folder in folders:
@@ -17,7 +24,7 @@ def make_folders(folders):
 
 def unpack_zip(zip_in_loc, zip_out_loc):
     all_files = os.listdir(zip_in_loc)
-    #For Mac-users (.DS_Store hidden file is created, which interferes with the program)
+    #For Mac-users (.DS_Store hidden file is created)
     for i in all_files:
         if i.startswith(".DS"):
             all_files.remove(i)
@@ -33,6 +40,11 @@ def unpack_zip(zip_in_loc, zip_out_loc):
         sys.exit()
     print("Extracting zip file...")
     full_path = os.path.join(zip_in_loc, all_files[0])
+    # Windows MAX_PATH may be limited to 260 in registry
+    if OS_TYPE.startswith("Windows"):
+        len_path_zip = len(os.getcwd() + full_path[1:])
+        if len_path_zip > (MAX_PATH - len(all_files[0])):
+            warnings.warn("You are approaching Windows MAX_PATH which is limited to 260 characters. If unzipping fails, run this script from de Desktop.")
     with ZipFile(full_path, 'r') as zipObj:
         zipObj.extractall(zip_out_loc)
     print("Zip file extracted")
@@ -42,7 +54,7 @@ def read_files(source, destination):
     all_files = os.listdir(source)
     students = []
     for i in all_files:
-        #For Mac-users (__MACOSX folder is created, which interferes with the program)
+        #For Mac-users (__MACOSX folder is created)
         if i.startswith("__MAC"):
             continue
         whole_path = os.path.join(source, i)
