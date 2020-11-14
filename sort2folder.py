@@ -5,6 +5,7 @@ from zipfile import ZipFile
 from PIL import Image
 import platform
 import warnings
+import hashlib
 
 #FILE LOCATIONS
 zip_in_loc = os.path.join(".", "place_zip_here")
@@ -12,13 +13,14 @@ zip_out_loc = os.path.join(".", "unzipped_files")
 file_destination = os.path.join(".", "your_sorted_files")
 pdf_destination = os.path.join(".", "your_pdf_files")
 log_destination = os.path.join(".", "your_log_file")
+md5_destination = os.path.join(".", "your_md5_file")
 
 #PLATFORM
 OS_TYPE = platform.platform()
 MAX_PATH = 260
 
-#ERRORS
-file_errors = []
+#ERROR FLAGS
+jpg_to_pdf_err = False
 
 def is_jpg(filename):
     try:
@@ -80,6 +82,7 @@ def read_files(source, destination):
 
 
 def export_to_pdf(jpg_destination, pdf_destination):
+    global jpg_to_pdf_err
     first_image_obj = None
     jpg_ext = ".jpg .JPG .jpeg .JPEG".split()
     print("Exporting to pdf...")
@@ -104,7 +107,7 @@ def export_to_pdf(jpg_destination, pdf_destination):
                     jpg_counter += 1
                 else:
                     print("file", file_path, "is not a valid jpg file")
-                    file_errors.append(file_path)
+                    jpg_to_pdf_err = True
                     continue
         if first_image_obj:
             first_image_obj.save(pdf_filename, "PDF", resolution=100.0, save_all=True, append_images=image_list)
@@ -112,27 +115,51 @@ def export_to_pdf(jpg_destination, pdf_destination):
 
 def write_log(zip_out_loc, log_destination):
     full_path = os.path.join(log_destination, "log_file.txt")
-    ext_to_skip = ".jpg .jpeg .JPG .JPEG .txt".split()
+    pic_to_skip = ".jpg .jpeg .JPG .JPEG".split()
+    others_to_skip = [".txt"]
     with open(full_path, "w") as f:
-        f.write("Files with other extension then " + ",".join(ext_to_skip) + ":\n\n")
+        f.write("Files with other extension then jpg or txt\n")
+        f.write("or files with .jpg extension but fail jpg integrity test:\n\n")
         all_files = os.listdir(zip_out_loc)
         for i in all_files:
             file_name, file_extension = os.path.splitext(i)
-            if not file_extension in ext_to_skip:
+            if not file_extension in pic_to_skip and file_extension not in others_to_skip:
+                f.write(i + "\n")
+            elif not is_jpg(os.path.join(zip_out_loc, i)) and file_extension not in others_to_skip:
+                print(i)
                 f.write(i + "\n")
 
+def md5(fname):
+    hash_md5 = hashlib.md5()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+
+def write_md5_checksum(zip_out_loc, log_destination):
+    full_path = os.path.join(log_destination, "file_hashes.csv")
+    with open(full_path, "w") as csv:
+        csv.write("Filepath; MD5 checksum\n\n")
+        all_files = os.listdir(zip_out_loc)
+        for i in all_files:
+            file_path = os.path.join(zip_out_loc, i)
+            file_hash = md5(file_path)
+            csv.write("{};{}\n".format(i, file_hash))  # Get the hexadecimal digest of the hash
+
 def main():
-    make_folders([zip_out_loc, file_destination, pdf_destination, log_destination])
+    make_folders([zip_out_loc, file_destination, pdf_destination, log_destination, md5_destination])
     unpack_zip(zip_in_loc, zip_out_loc)
     read_files(zip_out_loc, file_destination)
     export_to_pdf(file_destination, pdf_destination)
     write_log(zip_out_loc, log_destination)
+    write_md5_checksum(zip_out_loc, md5_destination)
     print("Files are sorted to", file_destination)
     print("PDF file is saved to", pdf_destination)
     print("Log file saved to", log_destination)
-    if file_errors:
-        for i in file_errors:
-            print("Could not convert {} to a pdf. Not a jpg or corrupt file".format(i))
+    print("MD5 checksum saved to", md5_destination)
+    if jpg_to_pdf_err:
+        print("Corrupt jpg encountered. See log file for details")
     print("Done")
 
 if __name__ == "__main__":
