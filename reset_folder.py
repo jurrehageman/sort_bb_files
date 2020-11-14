@@ -6,6 +6,8 @@ jpg_destination = os.path.join(".", "your_sorted_files")
 pdf_destination = os.path.join(".", "your_pdf_files")
 log_destination = os.path.join(".", "your_log_file")
 
+
+
 def remove_folders(folders):
     for folder in folders:
         try:

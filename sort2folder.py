@@ -17,6 +17,16 @@ log_destination = os.path.join(".", "your_log_file")
 OS_TYPE = platform.platform()
 MAX_PATH = 260
 
+#ERRORS
+file_errors = []
+
+def is_jpg(filename):
+    try:
+        i=Image.open(filename)
+        return i.format =='JPEG'
+    except IOError:
+        return False
+
 def make_folders(folders):
     for folder in folders:
         if not os.path.exists(folder):
@@ -85,12 +95,17 @@ def export_to_pdf(jpg_destination, pdf_destination):
             file_path = os.path.join(whole_path, i)
             file_name, file_extension = os.path.splitext(i)
             if file_extension in jpg_ext:
-                if jpg_counter == 0:
-                    first_image_obj = Image.open(file_path)
+                if is_jpg(file_path):
+                    if jpg_counter == 0:
+                        first_image_obj = Image.open(file_path)
+                    else:
+                        image_obj = Image.open(file_path)
+                        image_list.append(image_obj)
+                    jpg_counter += 1
                 else:
-                    image_obj = Image.open(file_path)
-                    image_list.append(image_obj)
-                jpg_counter += 1
+                    print("file", file_path, "is not a valid jpg file")
+                    file_errors.append(file_path)
+                    continue
         if first_image_obj:
             first_image_obj.save(pdf_filename, "PDF", resolution=100.0, save_all=True, append_images=image_list)
 
@@ -115,6 +130,9 @@ def main():
     print("Files are sorted to", file_destination)
     print("PDF file is saved to", pdf_destination)
     print("Log file saved to", log_destination)
+    if file_errors:
+        for i in file_errors:
+            print("Could not convert {} to a pdf. Not a jpg or corrupt file".format(i))
     print("Done")
 
 if __name__ == "__main__":
