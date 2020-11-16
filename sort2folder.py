@@ -90,6 +90,7 @@ def export_to_pdf(jpg_destination, pdf_destination):
     for subfolder in all_folders:
         whole_path = os.path.join(jpg_destination, subfolder)
         all_files = os.listdir(whole_path)
+        first_image_obj = None
         image_list = []
         pdf_filename = os.path.join(pdf_destination, subfolder + ".pdf")
         print("Now processing", pdf_filename)
