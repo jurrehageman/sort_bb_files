@@ -7,6 +7,9 @@ import platform
 import warnings
 import hashlib
 
+#SETTINGS
+pdf_export = False
+
 #FILE LOCATIONS
 zip_in_loc = os.path.join(".", "place_zip_here")
 zip_out_loc = os.path.join(".", "unzipped_files")
@@ -149,14 +152,19 @@ def write_md5_checksum(zip_out_loc, log_destination):
             csv.write("{};{}\n".format(i, file_hash))  # Get the hexadecimal digest of the hash
 
 def main():
-    make_folders([zip_out_loc, file_destination, pdf_destination, log_destination, md5_destination])
+    folders = [zip_out_loc, file_destination, log_destination, md5_destination]
+    if pdf_export:
+        folders.append(pdf_destination,)
+    make_folders(folders)
     unpack_zip(zip_in_loc, zip_out_loc)
     read_files(zip_out_loc, file_destination)
-    export_to_pdf(file_destination, pdf_destination)
+    if pdf_export:
+        export_to_pdf(file_destination, pdf_destination)
     write_log(zip_out_loc, log_destination)
     write_md5_checksum(zip_out_loc, md5_destination)
     print("Files are sorted to", file_destination)
-    print("PDF file is saved to", pdf_destination)
+    if pdf_export:
+        print("PDF file is saved to", pdf_destination)
     print("Log file saved to", log_destination)
     print("MD5 checksum saved to", md5_destination)
     if jpg_to_pdf_err:
