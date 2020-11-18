@@ -9,15 +9,22 @@ These instructions will show some examples to run the scripts
 
 ### Prerequisites
 
-`Pillow` needs to be installed on your system
+`Pillow` and `pyheif` needs to be installed on your system
 
 
 ### Installing
 
 Use pip to install `Pillow`.
 
+
 ```
 pip install pillow
+```
+
+Use pip to install `pyheif`
+
+```
+pip install pyheif
 ```
 
 ## Running the sort2folder.py module:

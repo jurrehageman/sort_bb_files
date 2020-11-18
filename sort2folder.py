@@ -6,9 +6,15 @@ from PIL import Image
 import platform
 import warnings
 import hashlib
+#PLATFORM
+OS_TYPE = platform.platform()
+if not OS_TYPE.startswith("Windows"):
+    import pyheif
+
 
 #SETTINGS
-pdf_export = False
+pdf_export = True
+MAX_PATH = 260
 
 #FILE LOCATIONS
 zip_in_loc = os.path.join(".", "place_zip_here")
@@ -17,10 +23,6 @@ file_destination = os.path.join(".", "your_sorted_files")
 pdf_destination = os.path.join(".", "your_pdf_files")
 log_destination = os.path.join(".", "your_log_file")
 md5_destination = os.path.join(".", "your_md5_file")
-
-#PLATFORM
-OS_TYPE = platform.platform()
-MAX_PATH = 260
 
 #ERROR FLAGS
 jpg_to_pdf_err = False
@@ -57,6 +59,7 @@ def unpack_zip(zip_in_loc, zip_out_loc):
     full_path = os.path.join(zip_in_loc, all_files[0])
     # Windows MAX_PATH may be limited to 260 in registry
     if OS_TYPE.startswith("Windows"):
+        warnings.warn("HEIC to jpg conversion will not work on Windows")
         len_path_zip = len(os.getcwd() + full_path[1:])
         if len_path_zip > (MAX_PATH - len(all_files[0])):
             warnings.warn("You are approaching Windows MAX_PATH which is limited to 260 characters. If unzipping fails, run this script from de Desktop.")
@@ -151,6 +154,24 @@ def write_md5_checksum(zip_out_loc, log_destination):
             file_hash = md5(file_path)
             csv.write("{};{}\n".format(i, file_hash))  # Get the hexadecimal digest of the hash
 
+
+def export_heic_to_jpg(file_destination):
+    heic_ext = [".HEIC", ".heic"]
+    all_folders = os.listdir(file_destination)
+    for subfolder in all_folders:
+        whole_path = os.path.join(file_destination, subfolder)
+        all_files = os.listdir(whole_path)
+        for i in all_files:
+            file_path = os.path.join(whole_path, i)
+            file_name, file_extension = os.path.splitext(i)
+            if file_extension in heic_ext:
+                print("Exporting {} to jpg".format(file_path))
+                new_name = file_name + "_EXPORTED_BY_SCRIPT"
+                heif_file = pyheif.read(file_path)
+                image = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data, "raw", heif_file.mode, heif_file.stride)
+                out_path_new = os.path.join(whole_path, new_name)
+                image.save(out_path_new + ".jpg", "JPEG")
+
 def main():
     folders = [zip_out_loc, file_destination, log_destination, md5_destination]
     if pdf_export:
@@ -158,6 +179,8 @@ def main():
     make_folders(folders)
     unpack_zip(zip_in_loc, zip_out_loc)
     read_files(zip_out_loc, file_destination)
+    if OS_TYPE.startswith("Linux") or OS_TYPE.startswith("Darwin"):
+        export_heic_to_jpg(file_destination)
     if pdf_export:
         export_to_pdf(file_destination, pdf_destination)
     write_log(zip_out_loc, log_destination)
