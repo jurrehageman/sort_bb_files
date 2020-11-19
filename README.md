@@ -16,15 +16,14 @@ These instructions will show some examples to run the scripts
 
 Use pip to install `Pillow`.
 
-
 ```
-pip install pillow
+pip3 install pillow
 ```
 
 Use pip to install `pyheif`
 
 ```
-pip install pyheif
+pip3 install pyheif
 ```
 
 ## Running the sort2folder.py module:

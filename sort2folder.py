@@ -179,7 +179,7 @@ def main():
     make_folders(folders)
     unpack_zip(zip_in_loc, zip_out_loc)
     read_files(zip_out_loc, file_destination)
-    if OS_TYPE.startswith("Linux") or OS_TYPE.startswith("Darwin"):
+    if OS_TYPE.startswith("Linux") or OS_TYPE.startswith("Darwin") or OS_TYPE.startswith("macOS"):
         export_heic_to_jpg(file_destination)
     if pdf_export:
         export_to_pdf(file_destination, pdf_destination)
