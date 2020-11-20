@@ -88,6 +88,7 @@ def sort_files(out_folder, randomize):
             if randomize:
                 salt = str(random.randint(100, 999)) + "_"
             out_path = os.path.join(destination, salt + student)
+            print("Sorting to", salt + student)
             make_folder(out_path)
             whole_path = os.path.join(source, i)
             out_path_file = os.path.join(out_path, i)
@@ -196,8 +197,8 @@ def export_heic_to_jpg(file_destination):
 
 
 def main():
-    # if OS_TYPE.startswith("Windows"):
-    #     windows_warnings()
+    if OS_TYPE.startswith("Windows"):
+        windows_warnings()
     args = get_comm_args()
     zip_file = args.zip_file
     out_folder = args.output_folder
