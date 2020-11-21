@@ -42,7 +42,7 @@ First make the file executable:
 ```
 chmod u+x sort2folder.py
 ```
-Then run the script
+Then run the script.  
 Example Mac/Linux:
 ```
 ./sort2folder.py -pcr test.zip outdirname
@@ -61,7 +61,7 @@ Required arguments:
 Optional arguments:
 - `--pdf or -p`: bundles all jpg files per student to pdf 
 - `--checksum or -c`: creates csv file with md5 checksums for all files. Use Excel conditional formatting to find duplicates.
-- `--randomize or -r`: adds random numbers to student numbers to randomize folder/file sequence.
+- `--randomize or -r`: adds a random prefix to student numbers to randomize folder/file sequence.
 - `--help or -h`: shows help on running the script.
 
 
