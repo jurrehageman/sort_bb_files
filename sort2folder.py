@@ -17,8 +17,6 @@ if not OS_TYPE.startswith("Windows"):
 #SETTINGS
 MAX_PATH = 260
 
-#ERROR FLAGS
-jpg_to_pdf_err = False
 
 def get_comm_args():
     """
@@ -104,7 +102,6 @@ def export_to_pdf(out_folder):
     pdf_destination = os.path.join(out_folder, "pdf_files")
     sorted_files = os.path.join(out_folder, "sorted_files")
     make_folder(pdf_destination)
-    global jpg_to_pdf_err
     first_image_obj = None
     jpg_ext = ".jpg .JPG .jpeg .JPEG".split()
     print("Exporting to pdf...")
@@ -129,8 +126,7 @@ def export_to_pdf(out_folder):
                         image_list.append(image_obj)
                     jpg_counter += 1
                 else:
-                    print("file", file_path, "is not a valid jpg file")
-                    jpg_to_pdf_err = True
+                    print("Warning: file", file_path, "is not a valid jpg file")
                     continue
         if first_image_obj:
             first_image_obj.save(pdf_filename, "PDF", resolution=100.0, save_all=True, append_images=image_list)
@@ -211,8 +207,6 @@ def main():
     write_log(out_folder)
     if args.checksum:
         write_md5_checksum(out_folder)
-    if jpg_to_pdf_err:
-        print("Corrupt jpg encountered. See log file for details")
     print("Done")
 
 if __name__ == "__main__":
