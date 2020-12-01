@@ -60,12 +60,12 @@ def windows_warnings():
 
 def unpack_zip(zip_in_loc, out_folder):
     file_name, file_extension = os.path.splitext(zip_in_loc)
-    unzipped_files = os.path.join(out_folder, "unzipped_files")
-    make_folder(unzipped_files)
     if not file_extension == ".zip":
         print(file_name + file_extension, "is not a zip file. Only zip files are allowed.")
         sys.exit()
     print("Extracting zip file...")
+    unzipped_files = os.path.join(out_folder, "unzipped_files")
+    make_folder(unzipped_files)
     with ZipFile(zip_in_loc, 'r') as zipObj:
         zipObj.extractall(unzipped_files)
     print("Zip file extracted")
